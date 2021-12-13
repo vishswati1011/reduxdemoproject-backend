@@ -8,7 +8,7 @@ let mailTransporter = nodemailer.createTransport({
   debug: true,
   auth: {
     user: "sv26703@gmail.com",
-    pass: "Hacker$@123",
+    pass: "",          //your email password
   },
 });
 //to  who reveice the mail  
@@ -27,22 +27,27 @@ let mailDetails = {
 //     }
 // });
 
-const sendMailToUser = async (email, price) => {
-
-    
+const sendMailToUser = async (email, otp,subject) => {
         try{
             let html = `
             <p>Hi,<br>
-            Mail is sent using node js nodemailler <br>            
+            Mail is sent using node js nodemailler <br> 
+            your otp is ${otp}           
             Your Sincerely
             </p> 
             `;
             await mailTransporter.sendMail({
-                from: 'sv26703#gmail.com',
-                to: 'sati.v1011@gmail.com',
-                subject: 'Test mail',
+                from: 'sv26703@gmail.com',
+                to: email,
+                subject: subject,
                 html: html
-            })
+            }, function(err, data) {
+                  if(err) {
+                      console.log('Error Occurs');
+                  } else {
+                      console.log('Email sent successfully');
+                  }
+              })
         }catch(err)
         {
 
