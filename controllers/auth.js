@@ -1,11 +1,11 @@
-const { sendMail } = require('../config/sendMail');
+const sendMail = require('../config/sendMail');
 const key = require('../config/key');
 const User =require('../models/User')
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 
 
-exports.signup = async (req, res, next) => {
+exports.signup = async (req, res) => {
 	try {
 
         const {email,fName,lName,pwd,phoneNo}=req.body;
@@ -30,48 +30,108 @@ exports.signup = async (req, res, next) => {
                 email,
                 fName,
                 lName,
+				otp,
                 pwd:hash,
-                phoneNo:phoneNo,
+                phoneNo,
             })
             const savedUser = await user.save()
             console.log("savedUser",savedUser)
+			console.log("savedUser.email",savedUser.email)
             sendMail(savedUser.email,otp,'account-verification');
             console.log("mailsent");
-            const payload = {
-				_id,
-				fName,
-				lName,
-				org,
-				email
-			};
-
-			const helper = async () => {
-				savedUser.otp = '';
-				await savedUser.save();
-			};
-			setTimeout(() => {
-				helper();
-			}, 900000);
-            jwt.sign(
-				payload,
-				key.secretKey,
-				{
-					expiresIn: 14400,
-				},
-				(err, token) => {
-					res.json({
-						success: true,
-						message: 'An otp has been sent to you email',
-					});
-				}
-			);
+			const _id=savedUser._id;
+			const payload = {
+					_id,
+					fName,
+					lName,
+					phoneNo,
+					email
+				};
+				const helper = async () => {
+					savedUser.otp = '';
+					await savedUser.save();
+				};
+				setTimeout(() => {
+					helper();
+				}, 900000);
+				jwt.sign(
+					payload,
+					key.secretKey,
+					{
+						expiresIn: 14400,
+					},
+					(err, token) => {
+						res.json({
+							result:payload,
+							success: true,
+							message: 'An otp has been sent to you email',
+						});
+					}
+				);	
         }else{
-            res.json({
-                success: true,
+            res.staus(400).json({
+                success: false,
                 message: 'User Already Exists',
             });
         }
     }catch(err)
     {
+		res.staus(400).json({
+			success: false,
+			message: 'Error in register user',
+		});
     }
+}
+
+exports.emailVerification = async (req, res) => {
+	try{
+	const {email,otp}=req.body;
+	var checkUser=await User.findOne({email});
+	if(!checkUser)
+	{
+		res.status(401).json({
+			success:false,
+			message:'Invalid Email'
+		})
+	}
+	if(checkUser.otp!==otp)
+	{
+		res.status(401).json({
+			success:false,
+			message:'Invalid otp'
+		})
+	}
+	checkUser.otp='';
+	const saveUser = await checkUser.save();
+	const {_id,phoneNo,fName,lName}=saveUser;
+	const payload = {
+		_id,
+		email,
+		fName,
+		lName,
+		phoneNo
+	}
+	jwt.sign(
+		payload,
+		key.secretKey,
+		{
+			expiresIn: 14400,
+		},
+		(err,token)=>{
+			res.status(200).json({
+				result:payload,
+				success:true,
+				token: 'Bearer ' + token,
+				message:'Email Varification Successfull'
+			})
+		}
+	)
+	}catch(err)
+	{
+		console.log("Error in email varification")
+		res.status(400).json({
+			success:false,
+			message:'Error in email varification '
+		})
+	}
 }

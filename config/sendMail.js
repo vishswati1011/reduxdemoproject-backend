@@ -8,8 +8,8 @@ let mailTransporter = nodemailer.createTransport({
   debug: true,
   auth: {
     user: "sv26703@gmail.com",
-    pass: "",          //your email password
-  },
+    pass: "Never@me123",          //your email password
+}
 });
 //to  who reveice the mail  
 let mailDetails = {
@@ -27,13 +27,12 @@ let mailDetails = {
 //     }
 // });
 
-const sendMailToUser = async (email, otp,subject) => {
+const sendMail= async (email, otp,subject) => {
         try{
             let html = `
             <p>Hi,<br>
             Mail is sent using node js nodemailler <br> 
-            your otp is ${otp}           
-            Your Sincerely
+            This is your otp:${otp} <br>          
             </p> 
             `;
             await mailTransporter.sendMail({
@@ -44,8 +43,10 @@ const sendMailToUser = async (email, otp,subject) => {
             }, function(err, data) {
                   if(err) {
                       console.log('Error Occurs');
+                      return 0;
                   } else {
                       console.log('Email sent successfully');
+                      return 1;
                   }
               })
         }catch(err)
@@ -54,4 +55,4 @@ const sendMailToUser = async (email, otp,subject) => {
         }
 
 }
-module.exports={sendMailToUser};
+module.exports=sendMail;
