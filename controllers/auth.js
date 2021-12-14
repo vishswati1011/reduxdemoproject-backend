@@ -3,6 +3,7 @@ const key = require('../config/key');
 const User =require('../models/User')
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
+const e = require('express');
 
 
 exports.signup = async (req, res) => {
@@ -132,6 +133,60 @@ exports.emailVerification = async (req, res) => {
 		res.status(400).json({
 			success:false,
 			message:'Error in email varification '
+		})
+	}
+}
+
+exports.login = async (req,res) => {
+
+	try{
+		const {email,password}=req.body;
+		console.log("user",req.body)
+		const user = await User.findOne({email})
+		if(!user){
+			res.status(400).json({
+				success:false,
+				message:"Invalid Email"
+			})
+		}
+		if(user)
+		{
+			if((await bcryptjs.compare(password, user.pwd)))
+			{
+				const {_id,fName,lName,phoneNo}=user;
+				const payload = {
+					_id,
+					email,
+					fName,
+					lName,
+					phoneNo
+				}
+				jwt.sign(
+					payload,
+					key.secretKey,
+					{
+						expiresIn:14400
+					},
+					(err,token) => {
+						res.status(200).json({
+							payload,
+							success:true,
+							token:"Bearer " +token,
+							message:"Login successfully complete"
+						})
+					}
+				)
+			}else{
+				res.status(400).json({
+					success:false,
+					message:"Invalid password"
+				})
+			}
+		}
+	}catch(err){
+		res.status(400).json({
+			success:false,
+			message:"Invalid email and password"
 		})
 	}
 }
