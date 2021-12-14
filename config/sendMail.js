@@ -8,7 +8,7 @@ let mailTransporter = nodemailer.createTransport({
   debug: true,
   auth: {
     user: "sv26703@gmail.com",
-    pass: "Never@me123",          //your email password
+    pass: "**********",          //your email password
 }
 });
 //to  who reveice the mail  
