@@ -5,7 +5,7 @@ const UserSchema=new mongoose.Schema({
     lName:{type:String},
     email:{type:String},
     otp:{type:Number},
-    phoneNo:{
+    phone:{
         type:Number,
         required: true,
         validate: {

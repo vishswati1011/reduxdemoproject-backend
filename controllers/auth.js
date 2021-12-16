@@ -9,7 +9,7 @@ const e = require('express');
 exports.signup = async (req, res) => {
 	try {
 
-        const {email,fName,lName,pwd,phoneNo}=req.body;
+        const {email,fName,lName,pwd,phone}=req.body;
         console.log(req.body);
         const checkUser =await User.findOne({email:email})
         console.log("checkUser",checkUser);
@@ -33,7 +33,7 @@ exports.signup = async (req, res) => {
                 lName,
 				otp,
                 pwd:hash,
-                phoneNo,
+                phone,
             })
             const savedUser = await user.save()
             console.log("savedUser",savedUser)
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
 					_id,
 					fName,
 					lName,
-					phoneNo,
+					phone,
 					email
 				};
 				const helper = async () => {
@@ -62,7 +62,7 @@ exports.signup = async (req, res) => {
 						expiresIn: 14400,
 					},
 					(err, token) => {
-						res.json({
+						res.status(200).json({
 							result:payload,
 							success: true,
 							message: 'An otp has been sent to you email',
@@ -70,14 +70,14 @@ exports.signup = async (req, res) => {
 					}
 				);	
         }else{
-            res.staus(400).json({
+            res.status(400).json({
                 success: false,
                 message: 'User Already Exists',
             });
         }
     }catch(err)
     {
-		res.staus(400).json({
+		res.status(400).json({
 			success: false,
 			message: 'Error in register user',
 		});
@@ -104,13 +104,13 @@ exports.emailVerification = async (req, res) => {
 	}
 	checkUser.otp='';
 	const saveUser = await checkUser.save();
-	const {_id,phoneNo,fName,lName}=saveUser;
+	const {_id,phone,fName,lName}=saveUser;
 	const payload = {
 		_id,
 		email,
 		fName,
 		lName,
-		phoneNo
+		phone
 	}
 	jwt.sign(
 		payload,
@@ -153,13 +153,13 @@ exports.login = async (req,res) => {
 		{
 			if((await bcryptjs.compare(password, user.pwd)))
 			{
-				const {_id,fName,lName,phoneNo}=user;
+				const {_id,fName,lName,phone}=user;
 				const payload = {
 					_id,
 					email,
 					fName,
 					lName,
-					phoneNo
+					phone
 				}
 				jwt.sign(
 					payload,
