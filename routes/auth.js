@@ -11,4 +11,7 @@ router.post(
 	// check('pwd').trim().isLength({ min: 6 }).withMessage('Password Incorrect'),
 	authController.login
 );
+router.get(
+	'/getAllUser',authController.getAllUser
+);
 module.exports=router;

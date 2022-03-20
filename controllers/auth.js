@@ -36,10 +36,10 @@ exports.signup = async (req, res) => {
                 phone,
             })
             const savedUser = await user.save()
-            console.log("savedUser",savedUser)
-			console.log("savedUser.email",savedUser.email)
-            sendMail(savedUser.email,otp,'account-verification');
-            console.log("mailsent");
+            // console.log("savedUser",savedUser)
+			// console.log("savedUser.email",savedUser.email)
+            // sendMail(savedUser.email,otp,'account-verification');
+            // console.log("mailsent");
 			const _id=savedUser._id;
 			const payload = {
 					_id,
@@ -187,6 +187,33 @@ exports.login = async (req,res) => {
 		res.status(400).json({
 			success:false,
 			message:"Invalid email and password"
+		})
+	}
+}
+
+exports.getAllUser = async (req,res) => {
+
+	try{
+	
+		const Alluser = await User.find()
+		console.log("res",Alluser)
+		if(!Alluser){
+			res.status(400).json({
+				success:false,
+				message:"No user find "
+			})
+		}
+		else{
+			res.status(200).json({
+				success:true,
+				result:Alluser
+			})
+		}
+	}catch(err)
+	{
+		res.status(400).json({
+			success:false,
+			message:"Something went wrong"
 		})
 	}
 }
